@@ -1,0 +1,6 @@
+app/__pycache__/
+app/setvars.py
+__pycache__/
+app/.cache/
+*.DS_Store
+*.pyc
