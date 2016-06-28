@@ -21,6 +21,8 @@ from datetime import datetime
 class Person(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
+
+     #The following is our 'last modified date' equivalent used to flag leads for sync to Marketo
     updated_on = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
     first_name = db.Column(db.String(32))
     last_name = db.Column(db.String(32))
@@ -92,7 +94,7 @@ class Event(db.Model):
 class EventType(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(80))
-    template = db.Column(db.String(240)) #Pipe delimited List of attribute keys
+    template = db.Column(db.String(240)) #JSON Array of attribute keys
     events = db.relationship('Event', backref='event_type', lazy='dynamic')
 
     def __repr__(self):

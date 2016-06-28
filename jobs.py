@@ -6,34 +6,38 @@ from config import SQLALCHEMY_MIGRATE_REPO
 import imp
 import os.path
 from app import app, db
+from datetime import datetime
+
 
 manager = Manager(app)
 
 #########################################################
 #
-#  Monthly Job to schedule campaigns for calendar demo
+#                    PERIODIC SYNC
 #
 #########################################################
 
+# This task is run using Heroku Task Scheduler (similar to a cron job) every 5 minutes
+
 @manager.command
-def skedMonthCampaigns():
-	results = []
-	for campaignId in [19802,19801,19799,19797,19798,19794,19795,19791,19790]: #NEED TO CHANGE THESE IDS
-		trialcounter=0
-		while trialcounter<3:
-			try:
-				sked_result = restClient.schedule_campaign(campaignId, run_at=run_date)
-				print(create_result)
-				if create_result['success']:
-					results.append(create_result['result'][0]['id'])
-				else:
-					results.append(create_result['errors'])
-				break
-			except Exception as e:
-				print(e)
-				trialcounter+=1
-				if trialcounter==3:
-					results.append('Unknown Error')
+def periodic_sync():
+	
+	# We only want to syncronize updates occurring since the last sync time
+	last_sync_time = os.environ.get('LAST_SYNC', datetime.fromtimestamp(0).isoformat()))
+
+	# To minimize duplication of API calls we will defer activities and changes occuring
+	# after the sync starts to the next sync
+	current_sync_time = str(datetime.now().isoformat())
+	
+	# 1) Get OAuth Token - Handled and managed by mktorest.py wrapper
+	# 2) "Get Paging Token" (pass in timestamp from the end of last integration cycle)
+	paging_token = restClient.get_paging_token()
+	# 3) "Get Lead Changes" (use token from (2))
+	# 4) "Get Lead Activities" (use token from (2))
+	# 5) Query SQL DB for updates to lead tables (or for staged/"flagged for sync" leads)
+	# 6) Push changes from (3) to SQL DB
+	# 7) Use "Create/update leads" to insert changes from (4) into Marketo
+	pass
 
 
 #########################################################
@@ -42,6 +46,8 @@ def skedMonthCampaigns():
 #
 #########################################################
 
+# The following scripts and SQLALCHEMY-Migrate are used to fascilitate updates
+# to the database model (models.py).
 
 @manager.command
 def db_create():
