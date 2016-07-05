@@ -8,10 +8,5 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 WTF_CSRF_ENABLED = True
 
-LAST_SYNC = os.environ.get('LAST_SYNC',datetime.now())
-
-try:
-	from app.setvars import FORM_KEY
-	SECRET_KEY = FORM_KEY
-except ImportError:
-	SECRET_KEY = os.environ['FORM_KEY']
+SECRET_KEY = os.environ.get('FORM_KEY')
+API_KEY = os.environ['API_KEY']

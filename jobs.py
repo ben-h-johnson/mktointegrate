@@ -31,12 +31,15 @@ def periodic_sync():
 	
 	# 1) Get OAuth Token - Handled and managed by mktorest.py wrapper
 	# 2) "Get Paging Token" (pass in timestamp from the end of last integration cycle)
-	paging_token = restClient.get_paging_token()
+	paging_token = restClient.get_paging_token(last_sync_time)
 	# 3) "Get Lead Changes" (use token from (2))
 	# 4) "Get Lead Activities" (use token from (2))
 	# 5) Query SQL DB for updates to lead tables (or for staged/"flagged for sync" leads)
 	# 6) Push changes from (3) to SQL DB
 	# 7) Use "Create/update leads" to insert changes from (4) into Marketo
+
+	# Clean up phase:
+	os.environ['LAST_SYNC']=current_sync_time
 	pass
 
 
